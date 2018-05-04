@@ -40,12 +40,12 @@ public class EnemyHandling : MonoBehaviour {
     {
 
         // If A bullet is not active use that
-        for (int i = 0; i < BULLET_POOL_SIZE; i++)
+        for (int i = 0; i < POOL_SIZE; i++)
         {
             if (!bulletPool[i].activeInHierarchy)
             {
                 // Set guns emitter/sprite to the correct angle/direction with recoil
-                emitterPos.transform.rotation = Quaternion.AngleAxis(Angle + 90 + randAngleChange, Vector3.forward);     // Keep Gun + Emitter
+                emitterPos.transform.rotation = Quaternion.AngleAxis(Angle + 90 + recoil, Vector3.forward);     // Keep Gun + Emitter
                
 
                 bulletPool[i].transform.position = emitter.transform.position;
