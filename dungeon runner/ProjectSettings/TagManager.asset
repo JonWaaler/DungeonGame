@@ -1,0 +1,65 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!78 &1
+TagManager:
+  serializedVersion: 2
+  tags:
+  - Bullet_Regular
+  - Boss
+  - Bullet_Boss
+  - Bullet_Player_Regular
+  - Bullet
+  - Wall
+  - Gun
+  layers:
+  - Default
+  - TransparentFX
+  - Ignore Raycast
+  - 
+  - Water
+  - UI
+  - 
+  - 
+  - fore
+  - mid-fore
+  - mid
+  - bloom
+  - back
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  m_SortingLayers:
+  - name: Default
+    uniqueID: 0
+    locked: 0
+  - name: UI
+    uniqueID: 1901428397
+    locked: 0
+  - name: fore
+    uniqueID: 237866657
+    locked: 0
+  - name: mid-fore
+    uniqueID: 1354584615
+    locked: 0
+  - name: mid
+    uniqueID: 2083623619
+    locked: 0
+  - name: back
+    uniqueID: 2363492331
+    locked: 0
