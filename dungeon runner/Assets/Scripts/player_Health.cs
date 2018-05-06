@@ -37,16 +37,12 @@ public class player_Health : MonoBehaviour {
 
             if(player_HealthBar.value <15)
                 postProcessingProfile.chromaticAberration.enabled = true;
-        }
-        //else
-            
+        }            
             
         postProcessingProfile.vignette.settings = settings;
 
         if (player_HealthBar.value <= 0)
         {
-            //play anim
-            //play particles
             deathParticles.SetActive(true);
             deathParticles.transform.position = new Vector3(player.transform.position.x, player.transform.position.y,-1);
             deathParticles.GetComponent<ParticleSystem>().Play();

@@ -16,9 +16,9 @@ public class EnemyHandling : MonoBehaviour {
     public Transform emitterPos;
     public float recoil = 5;
     public float rateOfFire = 0.1f;
-
-
     private float t_shotTimer = 0;
+
+
 
     // Init Bullets
     void Start () {
@@ -33,35 +33,37 @@ public class EnemyHandling : MonoBehaviour {
     }
 	
 	void Update () {
-		
+        t_shotTimer+= Time.deltaTime;
+        instantiateBullet(rateOfFire, emitterPos, recoil);
 	}
 
     void instantiateBullet(float t_betweenShot, Transform emitter, float Angle)
     {
-
-        // If A bullet is not active use that
-        for (int i = 0; i < POOL_SIZE; i++)
+        if ((t_shotTimer >= t_betweenShot))
         {
-            if (!bulletPool[i].activeInHierarchy)
+            // If A bullet is not active use that
+            for (int i = 0; i < POOL_SIZE; i++)
             {
-                // Set guns emitter/sprite to the correct angle/direction with recoil
-                emitterPos.transform.rotation = Quaternion.AngleAxis(Angle + 90 + recoil, Vector3.forward);     // Keep Gun + Emitter
-               
+                if (!bulletPool[i].activeInHierarchy)
+                {
+                    // Set guns emitter/sprite to the correct angle/direction with recoil
+                    emitterPos.transform.rotation = Quaternion.AngleAxis(Angle + 90 + recoil, Vector3.forward);     // Keep Gun + Emitter
 
-                bulletPool[i].transform.position = emitter.transform.position;
-                bulletPool[i].transform.rotation = emitter.transform.rotation;
-                bulletPool[i].GetComponent<bulletMovement>().t_PatternTimer = 0;
-                bulletPool[i].GetComponent<bulletMovement>().directionRight = false;
-                bulletPool[i].SetActive(true);
 
-                
-                //shotSound.Play();
+                    bulletPool[i].transform.position = emitter.transform.position;
+                    bulletPool[i].transform.rotation = emitter.transform.rotation;
+                    bulletPool[i].GetComponent<bulletMovement>().t_PatternTimer = 0;
+                    bulletPool[i].GetComponent<bulletMovement>().directionRight = false;
+                    bulletPool[i].SetActive(true);
 
-                break;
+
+                    //shotSound.Play();
+
+                    break;
+                }
             }
+            // Reset timer
+            t_shotTimer = 0;
         }
-        // Reset timer
-        shotTimer = 0;
-        
     }
 }

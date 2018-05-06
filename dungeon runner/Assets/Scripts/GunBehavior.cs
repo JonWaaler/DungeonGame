@@ -6,16 +6,19 @@ using EZCameraShake;
 public class GunBehavior : MonoBehaviour
 {
     // GUN Data
+    [Header("Audio Options")]
     public AudioSource shotSound;
     public AudioSource reloadSound;
     public AudioSource emptyMagSound;
-    public Transform emitterPosition;
+
+    [Header("Gun Firing Options")]
     public float shotRate;                 //How fast you shoot. Time between shot
     public float recoil;                   //after every shot random range of (recoil,recoil) 
     public float damage;
     public bool useCameraShake;
-    
+
     // Lightning patterns
+    [Header("Effects")]
     public Gun_Types eCurGunState; //init to idle
     public ParticleSystem lightningParticles;
 
@@ -29,6 +32,7 @@ public class GunBehavior : MonoBehaviour
     public List<Sprite> random_BulletSprites;
 
     // Reloading set up
+    [Header("Reloading Set-up")]
     public GameObject throwShells;
     public float reloadTime;
     public int magCapacity;
@@ -41,31 +45,33 @@ public class GunBehavior : MonoBehaviour
     private bool hasPlayed_ThrowShells = false;
 
     // Gun/emitter placement
+    [Header("Emitter/Sprite Placement")]
+    public Transform emitterPosition;
     public float EmitX, EmitY;
     public float SpriteX, SpriteY;
 
-    //--public const int INV_SIZE = 5;
-    public const int BULLET_POOL_SIZE = 25;
-
     // Instantiate Set-up
+    [Header("Instantiate Bullet Set-up")]
     public GameObject player;
     public GameObject bulletOriginal;
     private GameObject gunSprite;
     private Transform player_emitter;
     //private Vector2 mousePos;
 
+    // Pooling
+    [Header("Pooling")]
+    public const int BULLET_POOL_SIZE = 25;
+    public Transform bulletPoolSpawnPoint;
+    public GameObject[] bulletPool;
+
     // Gun set-up
-    private float randAngleChange = 0;      // The angle amt at which the gun will recoil
+    [Header("Public just for Outside scripts")]
     public bool isShooting = false;        // Initialize player to not shooting.
+    private float randAngleChange = 0;      // The angle amt at which the gun will recoil
     private float shotTimer = 0;            // Initialize the timer to start counting at 0. This counts up to timeBetweenShot
     private float timeBetweenShot = 0.2f;   // 0.2 is good for default shooting.
     private float randAngle = 7;            // Initialize default gun recoil to -7 to 7
     private float t_recoilReset = 0;
-
-    // Bullet Pool
-    private GameObject[] bulletPool;
-    public Transform bulletPoolSpawnPoint;
-
 
     // Start Init Invtory
     void Start()

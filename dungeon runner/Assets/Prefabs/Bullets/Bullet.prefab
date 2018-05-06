@@ -100,16 +100,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 30
-  bulletImpactCameraShake: 0
+  amplitute: 0.5
   directionRight: 1
+  bulletImpactCameraShake: 0
+  collIgnoreTags:
+  - Gun
+  - Bullet_Boss
+  - Bullet_Player_Regular
+  - Player
+  collTags: []
+  useExplosion: 0
   collisionAnimation: {fileID: 0}
   animationTime: 2
-  useExplosion: 0
-  t_PatternTimer: 0
   useDelay: 0
   time_ForDelay: 0
-  t_startDelay: 0
   eCurStatePattern: 0
+  t_startDelay: 0
+  t_PatternTimer: 0
 --- !u!212 &212203638189870062
 SpriteRenderer:
   m_ObjectHideFlags: 1
@@ -123,6 +130,7 @@ SpriteRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RenderingLayerMask: 4294967295
   m_Materials:
   - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
   m_StaticBatchInfo:
