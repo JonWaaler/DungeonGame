@@ -66,10 +66,10 @@ public class player_Health : MonoBehaviour {
         if ((coll.gameObject.tag == "Bullet_Boss"))
         {
             //Health Bar go down
-            player_HealthBar.value -= 2.5f;
+            player_HealthBar.value -= 1;
         }
         if(coll.gameObject.tag == "Boss")
-            player_HealthBar.value -= 5f;
+            player_HealthBar.value -= 1;
 
     }
 }

@@ -3,19 +3,30 @@ using System.Collections.Generic;
 using UnityEngine;
 using EZCameraShake;
 
+/* public var = Audio_MySound;
+ * private vars = audio_MySound;
+ * 
+ */
 public class GunBehavior : MonoBehaviour
 {
     // GUN Data
     [Header("Audio Options")]
-    public AudioSource shotSound;
-    public AudioSource reloadSound;
-    public AudioSource emptyMagSound;
+    public AudioSource Audio_shot;
+    public AudioSource Audio_reload;
+    public AudioSource Audio_emptyMag;
 
     [Header("Gun Firing Options")]
-    public float shotRate;                 //How fast you shoot. Time between shot
-    public float recoil;                   //after every shot random range of (recoil,recoil) 
-    public float damage;
+    public float data_shotRate;                 //How fast you shoot. Time between shot
+    public float data_recoil;                   //after every shot random range of (recoil,recoil) 
+    public float data_damage;
     public bool useCameraShake;
+
+
+    [Header("Gun Animations")]
+    public GameObject anim_GunWarmUp;
+
+    public GameObject Anim_ShootPuff;
+    GameObject anim_puff;
 
     // Lightning patterns
     [Header("Effects")]
@@ -41,7 +52,6 @@ public class GunBehavior : MonoBehaviour
     private int amtInMag;
     private float t_reload = 0;
     private bool startReload;
-    private bool endReload;
     private bool hasPlayed_ThrowShells = false;
 
     // Gun/emitter placement
@@ -56,8 +66,7 @@ public class GunBehavior : MonoBehaviour
     public GameObject bulletOriginal;
     private GameObject gunSprite;
     private Transform player_emitter;
-    //private Vector2 mousePos;
-
+    
     // Pooling
     [Header("Pooling")]
     public const int BULLET_POOL_SIZE = 25;
@@ -69,13 +78,13 @@ public class GunBehavior : MonoBehaviour
     public bool isShooting = false;        // Initialize player to not shooting.
     private float randAngleChange = 0;      // The angle amt at which the gun will recoil
     private float shotTimer = 0;            // Initialize the timer to start counting at 0. This counts up to timeBetweenShot
-    private float timeBetweenShot = 0.2f;   // 0.2 is good for default shooting.
-    private float randAngle = 7;            // Initialize default gun recoil to -7 to 7
-    private float t_recoilReset = 0;
 
     // Start Init Invtory
     void Start()
     {
+        player = GameObject.FindGameObjectWithTag("Player");
+        bulletPoolSpawnPoint = GameObject.Find("PlayerBulletPool").transform;
+
         bulletPool = new GameObject[BULLET_POOL_SIZE];
         amtInMag = magCapacity;
 
@@ -92,31 +101,37 @@ public class GunBehavior : MonoBehaviour
     void Update()
     {
 
-        if (gameObject.transform.parent != null)
+        if (gameObject.transform.parent.parent != null)
         {
+            gameObject.transform.parent.localPosition = new Vector3(0, 0, 0);
+            gameObject.GetComponent<SpriteRenderer>().sortingOrder = 0;
 
+            player = GameObject.FindGameObjectWithTag("Player");
 
             //gameObject.GetComponent<GunBehavior>().enabled = false;
 
             //int curGun = 0;
 
             // Our currently selected gun
-            int curGun = gameObject.GetComponentInParent<Inventory>().curGun;
+            //int curGun = gameObject.GetComponentInParent<Inventory>().curGun;
+            int curGun = gameObject.transform.parent.parent.GetComponent<Inventory>().curGun;
+
+
 
             // Variable Initializers (Reduce GetComponent Calls)
             // Set-up for Gun data to change how we shoot
-            gunSprite = player.transform.GetChild(curGun).gameObject;
+            gunSprite = player.transform.GetChild(curGun).GetChild(0).gameObject;
 
 
             // For angle math
-            Vector3 pos = Camera.main.WorldToScreenPoint(player.transform.GetChild(curGun).position);   // Mouse to world Pos
+            Vector3 pos = Camera.main.WorldToScreenPoint(player.transform.GetChild(curGun).GetChild(0).position);   // Mouse to world Pos
             Vector3 dir = Input.mousePosition - pos;                                                    // Direction vector
 
             // Angle math used to set up where emmiter looks
             float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;                                    // Angle Calculation
 
             // Recoil to be applied to angle math
-            randAngleChange = Random.Range(-recoil, recoil);
+            randAngleChange = Random.Range(-data_recoil, data_recoil);
 
             // Too make sure we don't recoil the gun  when not shooting
             if (isShooting == false)
@@ -140,6 +155,7 @@ public class GunBehavior : MonoBehaviour
                 emitterPosition.localPosition = new Vector3(EmitX, EmitY, 0);
                 gunSprite.transform.localPosition = new Vector3(SpriteX, -SpriteY, 0);
                 gunSprite.GetComponent<SpriteRenderer>().flipY = false; //flips gun depending on left/right side of player
+
                 lightningParticles.transform.localPosition = new Vector3(0.127f, 0.203f, 2.03f);
             }
             else if (mousePos.x < player.transform.position.x)
@@ -147,7 +163,14 @@ public class GunBehavior : MonoBehaviour
                 emitterPosition.localPosition = new Vector3(EmitX, -EmitY, 0);
                 gunSprite.transform.localPosition = new Vector3(-SpriteX, -SpriteY, 0);
                 gunSprite.GetComponent<SpriteRenderer>().flipY = true; //flips gun depending on left/right side of player
+                
                 lightningParticles.transform.localPosition = new Vector3(0.127f, -0.203f, 2.03f);
+            }
+
+            if ((amtInMag == 0) && (Input.GetMouseButtonDown(0))&&(!isShooting))
+            {
+                startReload = true;
+                hasPlayed_ThrowShells = false;
             }
 
             // Mouse hold down shooting
@@ -160,19 +183,18 @@ public class GunBehavior : MonoBehaviour
             if ((Input.GetKeyDown(KeyCode.R)) && (!isShooting))
             {
                 // Reload
+
                 if (totalBullets > 0)
                 {
                     hasPlayed_ThrowShells = false;
                     startReload = true;
                 }
                 else
-                    emptyMagSound.Play();
+                    Audio_emptyMag.Play();
             }
 
             if (startReload)
             {
-
-
                 t_reload += Time.deltaTime;
                 if (t_reload >= reloadTime)
                 {
@@ -182,7 +204,7 @@ public class GunBehavior : MonoBehaviour
                         if (!hasPlayed_ThrowShells)
                         {
 
-                            reloadSound.Play();
+                            Audio_reload.Play();
                             GameObject anim = Instantiate(throwShells);
                             anim.transform.position = gameObject.transform.position;
 
@@ -200,10 +222,10 @@ public class GunBehavior : MonoBehaviour
                         amtInMag = magCapacity;
                     else
                         amtInMag = totalBullets;
-                    endReload = false;
-                    startReload = false;
 
-                    
+
+                    startReload = false;
+                                        
                     t_reload = 0;
                 }
             }
@@ -212,25 +234,37 @@ public class GunBehavior : MonoBehaviour
             if (amtInMag > 0)
             {
                 if (eCurGunState == Gun_Types.regular)
-                    instantiateBullet(shotRate, emitterPosition, angle);
+                    instantiateBullet(data_shotRate, emitterPosition, angle);
                 else if (eCurGunState == Gun_Types.regular)
                 {
                     lightningParticles.Play();
                 }
             }
-            else if ((isShooting) && (!emptyMagSound.isPlaying) && (!startReload))
-                emptyMagSound.Play();
+            else if ((isShooting) && (!Audio_emptyMag.isPlaying) && (!startReload))
+                Audio_emptyMag.Play();
+
+            if (anim_puff != null)
+            {
+                anim_puff.transform.position = gameObject.transform.GetChild(0).position;
+                anim_puff.transform.rotation = gameObject.transform.GetChild(0).rotation;
+                anim_puff.transform.Rotate(0, 0, -90);
+            }
 
 
             if (isShooting)
                 lightningParticles.Play();
         }
+        else // No parent meaning on the ground
+        {
+            gameObject.GetComponent<SpriteRenderer>().sortingOrder = -5;
+        }
+        Audio_shot.pitch = Random.Range(0.8f, 1.2f);
     }
 
     void instantiateBullet(float t_betweenShot, Transform emitter, float Angle)
     {
 
-        if ((isShooting) && (shotTimer >= t_betweenShot))
+        if ((isShooting) && (shotTimer >= t_betweenShot) && (startReload == false))
         {
             // If A bullet is not active use that
             for (int i = 0; i < BULLET_POOL_SIZE; i++)
@@ -256,9 +290,16 @@ public class GunBehavior : MonoBehaviour
                     int spritePick = Random.Range(0, random_BulletSprites.Capacity);
                     bulletPool[i].GetComponent<SpriteRenderer>().sprite = random_BulletSprites[spritePick];
 
-
-
-                    shotSound.Play();
+                    // Shoot puff/smoke animation
+                    if(anim_puff  != null)
+                    {
+                        anim_puff = Instantiate(Anim_ShootPuff);
+                        anim_puff.transform.position = gameObject.transform.GetChild(0).position;
+                        anim_puff.transform.rotation = gameObject.transform.GetChild(0).rotation;
+                        Destroy(anim_puff, 0.5f);
+                    }
+                    
+                    Audio_shot.Play();
 
                     break;
                 }

@@ -13,18 +13,19 @@ public class bulletMovement : MonoBehaviour {
     public bool directionRight = true;
     private GameObject player;
 
+    [Header("Collision Sound")]
+    public GameObject OnCollisionSound;
+    public Transform parent;
+
     [Header("Camera Shake")]
     public bool bulletImpactCameraShake = false;
 
     [Header("Collision Ignore Tags")]
     public List<string> collIgnoreTags;
 
-    [Header("Collision Tags")]
-    public List<string> collTags;
-
     // Animations - Bullet Explosion
     [Header("Collision Animations")]
-    public bool useExplosion = false;
+    public bool Anim_BulletDeath = false;
     public GameObject collisionAnimation; //Animation Prefab. This animation will play when the bullet collides
     public float animationTime = 2;
 
@@ -57,9 +58,8 @@ public class bulletMovement : MonoBehaviour {
     {
 
         gameObject.transform.Translate(new Vector2(0, -speed * Time.deltaTime));
-        //gameObject.GetComponent<Rigidbody2D>().MovePosition(new Vector2(0, -30 * Time.deltaTime));
 
-        switch(eCurStatePattern)
+        switch (eCurStatePattern)
         {
             case Bullet_Pattern.none:
                 
@@ -94,26 +94,6 @@ public class bulletMovement : MonoBehaviour {
 
     void OnTriggerEnter2D(Collider2D coll)
     {
-
-        //if ((coll.gameObject.tag != "Player")&& (coll.gameObject.tag != "Bullet_Player_Regular") && (coll.gameObject.tag != "Bullet_Boss") && (coll.gameObject.tag != "Gun"))
-        //{
-        //    if ((player.transform.GetChild(player.GetComponent<Inventory>().curGun).GetComponent<GunBehavior>().useCameraShake) && (bulletImpactCameraShake))
-        //        CameraShaker.Instance.ShakeOnce(4f, 4f, .1f, .3f);
-        //
-        //    if (useExplosion)
-        //    {
-        //        GameObject ExplosionInstance = Instantiate(collisionAnimation , gameObject.transform.position, gameObject.transform.rotation);
-        //        Destroy(ExplosionInstance, animationTime);
-        //        if((player.transform.position-gameObject.transform.position).magnitude < 4)
-        //        {
-        //            player.GetComponent<player_Health>().player_HealthBar.value -= (3 * ((player.transform.position - gameObject.transform.position).magnitude ));
-        //        }
-        //    }
-        //
-        //               
-        //    this.gameObject.SetActive(false);
-        //}
-        
         // Ignore Tag for collision
         bool ignorePassed = false;
         int counter = 0;
@@ -124,15 +104,33 @@ public class bulletMovement : MonoBehaviour {
                 counter++;
             }
         }
+
         if (counter == collIgnoreTags.Capacity)
             ignorePassed = true;
 
+        // If all tag i want to ignore are true, then it's something i want to collide w/
         if (ignorePassed)
         {
-            if ((player.transform.GetChild(player.GetComponent<Inventory>().curGun).GetComponent<GunBehavior>().useCameraShake) && (bulletImpactCameraShake))
-                CameraShaker.Instance.ShakeOnce(4f, 4f, .1f, .3f);
+            //collisionSound.Play();
+            // Not the best way of doing it, however ran into problems where the previous
+            // Effitient  method stoped working
+            if (OnCollisionSound != null)
+            {
+                GameObject temp;
+                print("Col W/ Bullet");
+                Instantiate(OnCollisionSound);
+                temp = (GameObject)Instantiate(OnCollisionSound, parent);
+                if (temp.GetComponent<AudioSource>().isPlaying == false)
+                {
+                    Destroy(temp);
+                    print("Temp DESTROYED");
+                }
+            }
 
-            if (useExplosion)
+            if ((player.transform.GetChild(player.GetComponent<Inventory>().curGun).GetChild(0).GetComponent<GunBehavior>().useCameraShake) && (bulletImpactCameraShake))
+                CameraShaker.Instance.ShakeOnce(10f, 8f, 0.1f, .8f);
+
+            if (Anim_BulletDeath)
             {
                 GameObject ExplosionInstance = Instantiate(collisionAnimation, gameObject.transform.position, gameObject.transform.rotation);
                 Destroy(ExplosionInstance, animationTime);
@@ -142,8 +140,7 @@ public class bulletMovement : MonoBehaviour {
                 }
             }
 
-
-            this.gameObject.SetActive(false);
+            gameObject.SetActive(false);
         }
     }
 }

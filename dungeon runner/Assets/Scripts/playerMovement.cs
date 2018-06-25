@@ -35,7 +35,7 @@ public class playerMovement : MonoBehaviour {
 
     void FixedUpdate()
     {
-        player_emitter = GameObject.Find("Emitter").GetComponent<Transform>();
+        //player_emitter = GameObject.Find("Emitter").GetComponent<Transform>();
         Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         mousePos.z = 0;
         crosshair.transform.position = mousePos;
@@ -125,7 +125,7 @@ public class playerMovement : MonoBehaviour {
 
 
 
-        if(t_dodgeDelay >= 1) // if timer > 2, then allow dodge
+        if(t_dodgeDelay >= 1.1f) // if timer > 2, then allow dodge
         {
             if (Input.GetMouseButtonDown(1))
             {
@@ -147,8 +147,18 @@ public class playerMovement : MonoBehaviour {
                     newPosition = new Vector2(x * boostAmount + player.transform.position.x, y * boostAmount + player.transform.position.y);
 
                     // Compare vector lengths, then set position if the ray cast is smaller
-                    if(newPosition.magnitude >= hits[1].distance)
-                        newPosition = hits[1].point;
+                    for (int i = 0; i < hits.Length; i++)
+                    {
+                        if(hits[i].collider.tag == "Wall")
+                        {
+                            //newPosition = hits[i].point;
+                            if (newPosition.magnitude >= hits[i].distance)
+                                newPosition = hits[i].point;
+
+                            break;
+                        }
+                    }     
+                    
                 }
             }
         }
@@ -176,7 +186,7 @@ public class playerMovement : MonoBehaviour {
         }
 
         // When Lerp finished, Reset everything
-        if (t_dodgeInterp>=1)
+        if (t_dodgeInterp>=0.9f)
         {
             triggerBoost = false;
             t_dodgeInterp = 0;

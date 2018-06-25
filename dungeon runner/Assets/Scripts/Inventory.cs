@@ -15,7 +15,7 @@ public class Inventory : MonoBehaviour {
 
     // player GameObj
     private GameObject player;
-    int closestGun = 0;
+
 
     void Start () {
         player = GameObject.Find("Player");
@@ -74,30 +74,31 @@ public class Inventory : MonoBehaviour {
         {
             if (i != index)
             {
-                player.transform.GetChild(i).GetComponent<GunBehavior>().isShooting = false;
-                player.transform.GetChild(i).gameObject.SetActive(false);
+                player.transform.GetChild(i).GetChild(0).GetComponent<GunBehavior>().isShooting = false;
+                player.transform.GetChild(i).GetChild(0).gameObject.SetActive(false);
 
             }
             else
-                player.transform.GetChild(i).gameObject.SetActive(true);
+                player.transform.GetChild(i).GetChild(0).gameObject.SetActive(true);
         }
     }
 
     void OnTriggerStay2D(Collider2D col)
     {
-        if((col.transform.tag == "Gun")&&(col.transform.parent == null))
+        if((col.transform.tag == "Gun")&&(col.transform.parent.parent == null))
         {
             if (Input.GetKeyDown(KeyCode.E))
             {
                 if(player.transform.childCount >= INV_SIZE)
                 {
                     player.transform.GetChild(curGun).SetParent(null);
-                    col.transform.SetParent(gameObject.transform);
-                    col.transform.SetSiblingIndex(curGun);
+                    col.transform.parent.SetParent(gameObject.transform);
+                    col.transform.parent.SetSiblingIndex(curGun);
+
                 }
                 else
                 {
-                    col.transform.SetParent(gameObject.transform);
+                    col.transform.parent.SetParent(gameObject.transform);
                 }
 
             }

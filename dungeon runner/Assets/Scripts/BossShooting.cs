@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+//using UnityEngine.AI;
 
 public class BossShooting : MonoBehaviour {
     public GameObject bulletOrginal;        //Bullet prefab selected
@@ -9,6 +10,8 @@ public class BossShooting : MonoBehaviour {
     private GameObject boss_SpriteHolder;   //This is used for animations, and and visual effects  or bullet patterns
     private GameObject boss_Emitter;        //This is the bullets initialize point
     private GameObject player;              //The Player
+
+    public GameObject BossNavObj;
 
     // Shooting Variables
     private float timer_BetweenShot = 0;
@@ -24,10 +27,9 @@ public class BossShooting : MonoBehaviour {
 
     // Timer for Random state every (sec)
     public float timer_RandomState;
-     
-
+    
     // New boss code
-    private BossActionType eCurStateBoss = BossActionType.Follow; //init to idle
+    public BossActionType eCurStateBoss = BossActionType.Follow; //init to idle
     public Slider bossHealth;
 
     // Boss bullet pool
@@ -35,6 +37,11 @@ public class BossShooting : MonoBehaviour {
     private const int BULLET_POOL_SIZE = 30;    // Boss bullet pool size
     public Transform boss_BulletSpawn;
 
+    public float rotSpeed;
+    public float recoil;
+    public float speed;
+    
+    public Boss_ShootingState shootingOption;
 
     public enum BossActionType
     {
@@ -45,9 +52,15 @@ public class BossShooting : MonoBehaviour {
         Shooting
     }
 
+    public enum Boss_ShootingState
+    {
+        aimLock,
+        rotate
+    }
+
     void Start()
     {
-        boss_TransformLayer = GameObject.Find("Boss_TransformLayer");
+        boss_TransformLayer = gameObject.transform.parent.gameObject;
         boss_SpriteHolder = boss_TransformLayer.transform.GetChild(0).gameObject;
         boss_Emitter = boss_SpriteHolder.transform.GetChild(0).gameObject;
         player = GameObject.Find("Player");
@@ -62,6 +75,7 @@ public class BossShooting : MonoBehaviour {
         }
 
         timer_RandomState = 0;
+        eCurStateBoss = BossActionType.Follow;
     }
     
     void Update()
@@ -88,6 +102,8 @@ public class BossShooting : MonoBehaviour {
         }
 
         eCurStateBoss = BossActionType.Shooting;
+        //FollowPlayer(maintainDistance, distance);
+        //BossNavObj.GetComponent<NavMeshAgent>().SetDestination(player.transform.position);
 
         switch (eCurStateBoss)
         {
@@ -121,12 +137,14 @@ public class BossShooting : MonoBehaviour {
 
     void HandleMovingState()
     {
+        FollowPlayer(maintainDistance, distance);
         print("move");
     }
 
     void HandlePatrollingState()
     {
         // make a defined path for the boss to move on
+        FollowPlayer(maintainDistance, distance);
         print("patroll");
     }
 
@@ -135,9 +153,30 @@ public class BossShooting : MonoBehaviour {
         FollowPlayer(maintainDistance, distance);
     }
 
+    float LookAt(GameObject target, GameObject entity, float offset)
+    {
+        float AngleRad = Mathf.Atan2(target.transform.position.y - entity.transform.position.y, target.transform.position.x - entity.transform.position.x);
+        float AngleDeg = (180 / Mathf.PI) * AngleRad;
+
+        return AngleDeg + offset;
+    }
+
     void HandleShootingState()
     {
-        shooting(timeBetweenShot, timeBeforeReload);
+        if(shootingOption == Boss_ShootingState.aimLock)
+        {
+            //Aim Lock on player           
+            boss_SpriteHolder.transform.rotation = Quaternion.Euler(0, 0, LookAt(player, boss_SpriteHolder, 90));           
+            boss_Emitter.transform.rotation = Quaternion.Euler(0, 0, LookAt(player, boss_Emitter, 90));
+            
+
+            shooting(timeBetweenShot, timeBeforeReload);
+        }
+        else if(shootingOption == Boss_ShootingState.rotate)
+        {
+            boss_SpriteHolder.transform.Rotate(0, 0, rotSpeed);
+            shooting(timeBetweenShot, timeBeforeReload);
+        }
     }
 
     // FollowPlayer
@@ -146,7 +185,7 @@ public class BossShooting : MonoBehaviour {
         Vector3 distVector = boss_TransformLayer.transform.position - player.transform.position;
         float dist = distVector.magnitude;
 
-        if (dist > distance) //go closer to player i dist > distance
+        if (dist > distance) //go closer to player if dist > distance
         {
             Vector3 speed = distVector.normalized;
 
@@ -201,8 +240,9 @@ public class BossShooting : MonoBehaviour {
 
         if ((coll.gameObject.tag == "Bullet_Player_Regular") && (coll.gameObject.tag != "Boss") && (coll.gameObject.tag != "Bullet_Boss"))
         {
+            print("Damage");
             //Health Bar go down
-            bossHealth.value -= player.transform.GetChild(player.GetComponent<Inventory>().curGun).GetComponent<GunBehavior>().damage;
+            bossHealth.value -= player.transform.GetChild(player.GetComponent<Inventory>().curGun).GetChild(0).GetComponent<GunBehavior>().data_damage;
         }
         if (bossHealth.value <= 0)
         {
