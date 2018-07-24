@@ -235,8 +235,10 @@ public class GunBehavior : MonoBehaviour
             {
                 if (eCurGunState == Gun_Types.regular)
                     instantiateBullet(data_shotRate, emitterPosition, angle);
-                else if (eCurGunState == Gun_Types.regular)
+                else if ((eCurGunState == Gun_Types.Lightning)&&(transform.parent.parent == true))
                 {
+                    instantiateBullet(data_shotRate, emitterPosition, angle);
+                    if(isShooting)
                     lightningParticles.Play();
                 }
             }
@@ -251,8 +253,8 @@ public class GunBehavior : MonoBehaviour
             }
 
 
-            if (isShooting)
-                lightningParticles.Play();
+            //if ((isShooting)&& (transform.parent.parent == true))
+                //lightningParticles.Play();
         }
         else // No parent meaning on the ground
         {

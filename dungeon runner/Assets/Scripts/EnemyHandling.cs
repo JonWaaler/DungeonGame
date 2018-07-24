@@ -77,17 +77,17 @@ public class EnemyHandling : MonoBehaviour {
     void Update()
     {
         HandleShootingState();
-        FollowPlayer(maintainDistance, distance);
-        
-        // Move the gun on the correct side of the enemy
-        if(player.transform.position.x >= enemy_TransformLayer.transform.position.x)
-        {
-            enemy_Gun.transform.localPosition = new Vector3(enemy_GunPos.x, enemy_GunPos.y, enemy_GunPos.z);
-        }
-        else
-        {
-            enemy_Gun.transform.localPosition = new Vector3(-enemy_GunPos.x, enemy_GunPos.y, enemy_GunPos.z);
-        }
+        //FollowPlayer(maintainDistance, distance);
+        //
+        //// Move the gun on the correct side of the enemy
+        //if(player.transform.position.x >= enemy_TransformLayer.transform.position.x)
+        //{
+        //    enemy_Gun.transform.localPosition = new Vector3(enemy_GunPos.x, enemy_GunPos.y, enemy_GunPos.z);
+        //}
+        //else
+        //{
+        //    enemy_Gun.transform.localPosition = new Vector3(-enemy_GunPos.x, enemy_GunPos.y, enemy_GunPos.z);
+        //}
     }
 
     float LookAt(GameObject target, GameObject entity, float offset)

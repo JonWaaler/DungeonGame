@@ -111,20 +111,15 @@ public class bulletMovement : MonoBehaviour {
         // If all tag i want to ignore are true, then it's something i want to collide w/
         if (ignorePassed)
         {
-            //collisionSound.Play();
             // Not the best way of doing it, however ran into problems where the previous
             // Effitient  method stoped working
             if (OnCollisionSound != null)
             {
                 GameObject temp;
-                print("Col W/ Bullet");
                 Instantiate(OnCollisionSound);
                 temp = (GameObject)Instantiate(OnCollisionSound, parent);
-                if (temp.GetComponent<AudioSource>().isPlaying == false)
-                {
-                    Destroy(temp);
-                    print("Temp DESTROYED");
-                }
+
+                Destroy(temp, 1);
             }
 
             if ((player.transform.GetChild(player.GetComponent<Inventory>().curGun).GetChild(0).GetComponent<GunBehavior>().useCameraShake) && (bulletImpactCameraShake))
@@ -132,6 +127,7 @@ public class bulletMovement : MonoBehaviour {
 
             if (Anim_BulletDeath)
             {
+                //print("Make Boom");
                 GameObject ExplosionInstance = Instantiate(collisionAnimation, gameObject.transform.position, gameObject.transform.rotation);
                 Destroy(ExplosionInstance, animationTime);
                 if ((player.transform.position - gameObject.transform.position).magnitude < 4)

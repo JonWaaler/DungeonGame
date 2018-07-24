@@ -142,10 +142,10 @@ MonoBehaviour:
   - Bullet_Player_Regular
   - Bullet_Boss
   - Gun
-  Anim_BulletDeath: 0
-  collisionAnimation: {fileID: 1701358236949818, guid: 4365dae393f9d954b9aa5b05bdb395af,
+  Anim_BulletDeath: 1
+  collisionAnimation: {fileID: 1386041268415800, guid: 3384d37d4de7baf458824b89a3e485a3,
     type: 2}
-  animationTime: 1
+  animationTime: 2
   useDelay: 0
   time_ForDelay: 0
   eCurStatePattern: 0

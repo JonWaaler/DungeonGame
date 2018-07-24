@@ -14,11 +14,14 @@ public class AStar_algorithm : MonoBehaviour
     public List<GameObject> OpenList1;
 
 
-    public float t_TraverseTime = 0;
-    public bool HasReached0thNode = false;
-    public bool HasSavedValue = false;
-    public bool HasFinshedPath = false;
+    private float t_TraverseTime = 0;
+    private bool HasReached0thNode = false;
+    private bool HasSavedValue = false;
+    private bool HasFinshedPath = false;
     Vector3 bossPos;
+    private bool newPath = true;
+    private int pathIndex = 0;
+    private GameObject previous_nearNodePlayer;
 
     GameObject findNearNode(GameObject entity)
     {
@@ -69,7 +72,7 @@ public class AStar_algorithm : MonoBehaviour
                     }
                 }
             }
-            if (OpenList.Count <= 50)
+            if (OpenList.Count <= nodes.Count)
                 fillOpenList(startingNode.GetComponent<Node>().AttachedNodes[shortestNode].gameObject);
         }
     }
@@ -85,10 +88,14 @@ public class AStar_algorithm : MonoBehaviour
         return dist;
     }
 
+    public GameObject nearNode_boss;
+    public Transform nearNode_player;
+
     void pathAlgorithm()
     {
-        GameObject nearNode_boss = findNearNode(Boss);
-        Transform nearNode_player = findNearNode(Player).transform;
+
+        nearNode_boss = findNearNode(Boss);
+        nearNode_player = findNearNode(Player).transform;
 
         //shortestPath = null;
         if (OpenList1.Count > 0)
@@ -114,7 +121,7 @@ public class AStar_algorithm : MonoBehaviour
             nearNode_boss.GetComponent<Node>().searched = true;
 
             //-- Now all nodes are properly set up, lets fill openlist --//
-            if (OpenList.Count <= 50)
+            if (OpenList.Count <= nodes.Count)
                 fillOpenList(nearNode_boss.GetComponent<Node>().AttachedNodes[i].gameObject);
 
             //-- Lets calculate the dist of the nodes --//
@@ -126,6 +133,7 @@ public class AStar_algorithm : MonoBehaviour
                 dist += Vector3.Distance(OpenList[f].transform.position, OpenList[f + 1].transform.position);
             }
 
+            // Compares path in Openlist dist to path in openlist1 and fills openlist1 with the shortest
             if (OpenList1.Count != 0)
             {
                 // Secondary list is full
@@ -147,47 +155,76 @@ public class AStar_algorithm : MonoBehaviour
             }
         }
     }
-    bool newPath = true;
-    int pathIndex = 0;
-    GameObject previous_nearNodePlayer;
 
-    void Update()
+    void FixedUpdate()
     {
-
-        if((OpenList1.Count == 0) || (newPath))
+        //if (Boss = true)
         {
-            pathAlgorithm();
-            newPath = false;
-            print("NEW PATH CREATED");
-        }
-        else
-        {
-            if(Vector2.Distance(Boss.transform.position, OpenList1[pathIndex].transform.position) < 0.5f)
+
+
+            //OpenList.Clear();
+            //OpenList1.Clear();
+            //
+            //for (int j = 0; j < nodes.Count; j++)
+            //{
+            //    //for all nodes. Turn searched false
+            //    if ((nodes[j] != nearNode_boss))
+            //    {
+            //        nodes[j].GetComponent<Node>().searched = false;
+            //    }
+            //}
+            //newPath = true;
+
+            // if nothing in shortest path list (openlist1) or newPath == true; Then create path;
+            if ((OpenList1.Count == 0) || (newPath))
             {
-                if(pathIndex < OpenList1.Count-1)
-                pathIndex++;
-            }
-            Boss.transform.position = (Vector2.MoveTowards(Boss.transform.position, OpenList1[pathIndex].transform.position, 0.1f));
+                pathAlgorithm();
+                newPath = false;
 
-            if (Input.GetKeyDown(KeyCode.G))
+                // We already have a path and dont want a new one
+                // Lets Send the enemy in dir of corrent node
+                if (Vector2.Distance(Boss.transform.position, OpenList1[pathIndex].transform.position) < 0.2f)
+                {
+                    if (pathIndex < OpenList1.Count - 1)
+                        pathIndex++;
+                }
+                // Movement
+                Boss.transform.position = (Vector2.MoveTowards(Boss.transform.position, OpenList1[pathIndex].transform.position, 0.1f));
+
+                // Logic for when we need a new path
+                // Basically: if the node near player isnt the same as the last node in the list
+                if (findNearNode(Player) != (OpenList1[OpenList1.Count - 1]))
+                {
+                    pathIndex = 0;
+                    newPath = true;
+                }
+            }
+            else
             {
-                pathIndex = 0;
-                newPath = true;
+                // We already have a path and dont want a new one
+                // Lets Send the enemy in dir of corrent node
+                if (Vector2.Distance(Boss.transform.position, OpenList1[pathIndex].transform.position) < 0.5f)
+                {
+                    if (pathIndex < OpenList1.Count - 1)
+                        pathIndex++;
+                }
+                // Movement
+                Boss.transform.position = (Vector2.MoveTowards(Boss.transform.position, OpenList1[pathIndex].transform.position, 0.2f));
+
+                // Logic for when we need a new path
+                // Basically: if the node near player isnt the same as the last node in the list
+                if (findNearNode(Player) != (OpenList1[OpenList1.Count - 1]))
+                {
+                    pathIndex = 0;
+                    newPath = true;
+                }
             }
 
-            if(findNearNode(Player) != (OpenList1[OpenList1.Count-1]))
+            //------------- TRAVERSAL Visuals (debug) -------------//
+            for (int u = 0; u < OpenList1.Count - 1; u++)
             {
-                pathIndex = 0;
-                newPath = true;
+                Debug.DrawLine(OpenList1[u].transform.position, OpenList1[u + 1].transform.position);
             }
         }
-
-        //-------------// TRAVERSAL PATH //-------------//
-        for (int u = 0; u < OpenList1.Count - 1; u++)
-        {
-            Debug.DrawLine(OpenList1[u].transform.position, OpenList1[u + 1].transform.position);
-        }
-
-        //Boss.transform.position = nearNode_boss.transform.position;
     }
 }

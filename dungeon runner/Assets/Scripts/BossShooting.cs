@@ -11,8 +11,6 @@ public class BossShooting : MonoBehaviour {
     private GameObject boss_Emitter;        //This is the bullets initialize point
     private GameObject player;              //The Player
 
-    public GameObject BossNavObj;
-
     // Shooting Variables
     private float timer_BetweenShot = 0;
     private float timer_BeforeReload = 0;
@@ -80,78 +78,11 @@ public class BossShooting : MonoBehaviour {
     
     void Update()
     {
-        timer_RandomState += Time.deltaTime;
+        HandleShootingState();
 
-        if (timer_RandomState > 10)
-        {
-            int numState = Random.Range(1, 5);
-
-
-            if (numState == 1)
-                eCurStateBoss = BossActionType.Idle;
-            if (numState == 2)
-                eCurStateBoss = BossActionType.Moving;
-            if (numState == 3)
-                eCurStateBoss = BossActionType.Patrolling;
-            if (numState == 4)
-                eCurStateBoss = BossActionType.Follow;
-            if (numState == 5)
-                eCurStateBoss = BossActionType.Shooting;
-
-            timer_RandomState = 0;
-        }
-
-        eCurStateBoss = BossActionType.Shooting;
-        //FollowPlayer(maintainDistance, distance);
-        //BossNavObj.GetComponent<NavMeshAgent>().SetDestination(player.transform.position);
-
-        switch (eCurStateBoss)
-        {
-            case BossActionType.Idle:
-                HandleIdleState();
-                break;
-
-            case BossActionType.Moving:
-                HandleMovingState();
-                break;
-
-            case BossActionType.Patrolling:
-                HandlePatrollingState();
-                break;
-
-            case BossActionType.Follow:
-                HandleFollowState();
-                break;
-
-            case BossActionType.Shooting:
-                HandleShootingState();
-                break;
-        }
     }
 
-    // State Handling
-    void HandleIdleState()
-    {
-        print("idle");
-    }
 
-    void HandleMovingState()
-    {
-        FollowPlayer(maintainDistance, distance);
-        print("move");
-    }
-
-    void HandlePatrollingState()
-    {
-        // make a defined path for the boss to move on
-        FollowPlayer(maintainDistance, distance);
-        print("patroll");
-    }
-
-    void HandleFollowState()
-    {
-        FollowPlayer(maintainDistance, distance);
-    }
 
     float LookAt(GameObject target, GameObject entity, float offset)
     {
@@ -237,16 +168,24 @@ public class BossShooting : MonoBehaviour {
     // Bullet Collisions
     void OnTriggerEnter2D(Collider2D coll)
     {
-
+        print("BOSS_COL:" +coll.name);
         if ((coll.gameObject.tag == "Bullet_Player_Regular") && (coll.gameObject.tag != "Boss") && (coll.gameObject.tag != "Bullet_Boss"))
         {
-            print("Damage");
+            print("Boss Damage");
             //Health Bar go down
             bossHealth.value -= player.transform.GetChild(player.GetComponent<Inventory>().curGun).GetChild(0).GetComponent<GunBehavior>().data_damage;
+            if (player.transform.GetChild(player.GetComponent<Inventory>().curGun).GetChild(0).GetComponent<GunBehavior>().data_damage == 0)
+                print("WARNING: Player Gun DMG == 0");
         }
+
+
         if (bossHealth.value <= 0)
         {
             Destroy(boss_TransformLayer);
         }            
+    }
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        print("YOYOYO");
     }
 }

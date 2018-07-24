@@ -125,7 +125,7 @@ public class playerMovement : MonoBehaviour {
 
 
 
-        if(t_dodgeDelay >= 1.1f) // if timer > 2, then allow dodge
+        if(t_dodgeDelay >= 0.5f) // if timer > 2, then allow dodge
         {
             if (Input.GetMouseButtonDown(1))
             {

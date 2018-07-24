@@ -141,6 +141,7 @@ MonoBehaviour:
   - Bullet_Boss
   - Bullet_Player_Regular
   - Boss
+  - Boss
   Anim_BulletDeath: 0
   collisionAnimation: {fileID: 1701358236949818, guid: 4365dae393f9d954b9aa5b05bdb395af,
     type: 2}
